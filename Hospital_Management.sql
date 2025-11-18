@@ -289,5 +289,200 @@ JOIN Doctor d ON a.DoctorID = d.DoctorID
 JOIN Billing b ON p.PatientID = b.PatientID;
 
 ----------------------------------------------------------------
+-- Step 21: Trigger Action Log Table (For tracking trigger executions)
+----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS TriggerActionLog (
+    LogID INT AUTO_INCREMENT PRIMARY KEY,
+    TriggerName VARCHAR(100),
+    ActionType VARCHAR(50),
+    TableName VARCHAR(100),
+    RecordID INT,
+    OldValue VARCHAR(255),
+    NewValue VARCHAR(255),
+    ActionTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PatientID INT
+);
+
+----------------------------------------------------------------
+-- Step 22: Prescription Table
+----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS Prescription (
+    PrescriptionID INT AUTO_INCREMENT PRIMARY KEY,
+    PatientID INT NOT NULL,
+    DoctorID INT NOT NULL,
+    MedicineName VARCHAR(100),
+    Dosage VARCHAR(50),
+    Frequency VARCHAR(50),
+    StartDate DATE,
+    EndDate DATE,
+    Notes VARCHAR(255),
+    FOREIGN KEY (PatientID) REFERENCES Patient(PatientID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (DoctorID) REFERENCES Doctor(DoctorID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+----------------------------------------------------------------
+-- Step 23: Department Table
+----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS Department (
+    DepartmentID INT AUTO_INCREMENT PRIMARY KEY,
+    DepartmentName VARCHAR(100) UNIQUE,
+    HeadDoctor INT,
+    Phone VARCHAR(15),
+    FOREIGN KEY (HeadDoctor) REFERENCES Doctor(DoctorID) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+----------------------------------------------------------------
+-- Step 24: Hospital Rooms Table
+----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS Room (
+    RoomID INT AUTO_INCREMENT PRIMARY KEY,
+    RoomNumber VARCHAR(20) UNIQUE,
+    RoomType ENUM('General', 'ICU', 'Private', 'Semi-Private'),
+    Capacity INT,
+    IsOccupied BOOLEAN DEFAULT FALSE,
+    CurrentPatientID INT,
+    DepartmentID INT,
+    FOREIGN KEY (CurrentPatientID) REFERENCES Patient(PatientID) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+----------------------------------------------------------------
+-- Step 25: Lab Test Table
+----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS LabTest (
+    TestID INT AUTO_INCREMENT PRIMARY KEY,
+    PatientID INT NOT NULL,
+    DoctorID INT NOT NULL,
+    TestName VARCHAR(100),
+    TestDate DATE,
+    Result VARCHAR(255),
+    Status ENUM('Pending', 'Completed', 'Cancelled') DEFAULT 'Pending',
+    Notes VARCHAR(255),
+    FOREIGN KEY (PatientID) REFERENCES Patient(PatientID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (DoctorID) REFERENCES Doctor(DoctorID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+----------------------------------------------------------------
+-- Step 26: Insert Department Data
+----------------------------------------------------------------
+INSERT IGNORE INTO Department (DepartmentName, HeadDoctor, Phone) VALUES
+('Cardiology', 1, '9111111111'),
+('Neurology', 2, '9222222222'),
+('Orthopedics', 3, '9333333333');
+
+----------------------------------------------------------------
+-- Step 27: Insert Room Data
+----------------------------------------------------------------
+INSERT IGNORE INTO Room (RoomNumber, RoomType, Capacity, DepartmentID) VALUES
+('101', 'General', 2, 1),
+('102', 'General', 2, 1),
+('ICU-01', 'ICU', 1, 1),
+('ICU-02', 'ICU', 1, 2),
+('Private-01', 'Private', 1, 3);
+
+----------------------------------------------------------------
+-- Step 28: Insert Prescription Data
+----------------------------------------------------------------
+INSERT IGNORE INTO Prescription (PatientID, DoctorID, MedicineName, Dosage, Frequency, StartDate, EndDate) VALUES
+(1, 1, 'Amlodipine', '5mg', 'Once daily', '2025-10-01', '2025-10-31'),
+(2, 2, 'Sumatriptan', '50mg', 'As needed', '2025-10-03', '2025-10-31'),
+(3, 1, 'Aspirin', '100mg', 'Once daily', '2025-10-05', '2025-10-31');
+
+----------------------------------------------------------------
+-- Step 29: Insert Lab Test Data
+----------------------------------------------------------------
+INSERT IGNORE INTO LabTest (PatientID, DoctorID, TestName, TestDate, Status, Result) VALUES
+(1, 1, 'Blood Test (Complete Blood Count)', '2025-10-01', 'Completed', 'Normal'),
+(2, 2, 'MRI Brain', '2025-10-03', 'Pending', NULL),
+(3, 1, 'ECG', '2025-10-05', 'Completed', 'Abnormal - Follow up required'),
+(4, 3, 'X-Ray Arm', '2025-10-07', 'Completed', 'Fracture confirmed');
+
+----------------------------------------------------------------
+-- Step 30: Additional Trigger - Log Prescription Addition
+----------------------------------------------------------------
+DELIMITER $$
+CREATE TRIGGER TR_LOG_PRESCRIPTION_INSERT
+AFTER INSERT ON Prescription
+FOR EACH ROW
+BEGIN
+    INSERT INTO TriggerActionLog (TriggerName, ActionType, TableName, RecordID, NewValue, PatientID)
+    VALUES ('TR_LOG_PRESCRIPTION_INSERT', 'INSERT', 'Prescription', NEW.PrescriptionID, 
+            CONCAT('Medicine: ', NEW.MedicineName, ', Dosage: ', NEW.Dosage), NEW.PatientID);
+END$$
+DELIMITER ;
+
+----------------------------------------------------------------
+-- Step 31: Additional Trigger - Log Room Occupancy Change
+----------------------------------------------------------------
+DELIMITER $$
+CREATE TRIGGER TR_LOG_ROOM_OCCUPANCY
+AFTER UPDATE ON Room
+FOR EACH ROW
+BEGIN
+    IF NEW.IsOccupied <> OLD.IsOccupied THEN
+        INSERT INTO TriggerActionLog (TriggerName, ActionType, TableName, RecordID, OldValue, NewValue, PatientID)
+        VALUES ('TR_LOG_ROOM_OCCUPANCY', 'UPDATE', 'Room', NEW.RoomID, 
+                IF(OLD.IsOccupied, 'Occupied', 'Vacant'), IF(NEW.IsOccupied, 'Occupied', 'Vacant'), NEW.CurrentPatientID);
+    END IF;
+END$$
+DELIMITER ;
+
+----------------------------------------------------------------
+-- Step 32: Trigger - Automatic Bill Update on Lab Test Completion
+----------------------------------------------------------------
+DELIMITER $$
+CREATE TRIGGER TR_ADD_LAB_TEST_CHARGE
+AFTER UPDATE ON LabTest
+FOR EACH ROW
+BEGIN
+    DECLARE lab_charge DECIMAL(10,2);
+    
+    IF NEW.Status = 'Completed' AND OLD.Status <> 'Completed' THEN
+        SET lab_charge = 500.00;
+        INSERT INTO Billing (PatientID, Amount, BillingDate) 
+        VALUES (NEW.PatientID, lab_charge, CURDATE());
+        
+        INSERT INTO TriggerActionLog (TriggerName, ActionType, TableName, RecordID, NewValue, PatientID)
+        VALUES ('TR_ADD_LAB_TEST_CHARGE', 'INSERT', 'Billing', LAST_INSERT_ID(), 
+                CONCAT('Lab Test Charge: $', lab_charge), NEW.PatientID);
+    END IF;
+END$$
+DELIMITER ;
+
+----------------------------------------------------------------
+-- Step 33: View - Patient Room Status
+----------------------------------------------------------------
+CREATE OR REPLACE VIEW PatientRoomView AS
+SELECT 
+    p.PatientID,
+    p.Name AS PatientName,
+    r.RoomNumber,
+    r.RoomType,
+    d.DepartmentName,
+    r.IsOccupied
+FROM Patient p
+LEFT JOIN Room r ON p.PatientID = r.CurrentPatientID
+LEFT JOIN Department d ON r.DepartmentID = d.DepartmentID
+WHERE r.IsOccupied = TRUE;
+
+----------------------------------------------------------------
+-- Step 34: View - Department Workload
+----------------------------------------------------------------
+CREATE OR REPLACE VIEW DepartmentWorkloadView AS
+SELECT 
+    d.DepartmentName,
+    d.HeadDoctor,
+    doc.Name AS HeadDoctorName,
+    COUNT(DISTINCT a.AppointmentID) AS TotalAppointments,
+    COUNT(DISTINCT r.RoomID) AS TotalRooms,
+    SUM(CASE WHEN r.IsOccupied THEN 1 ELSE 0 END) AS OccupiedRooms
+FROM Department d
+LEFT JOIN Doctor doc ON d.HeadDoctor = doc.DoctorID
+LEFT JOIN Doctor dept_doc ON d.DepartmentID = (SELECT DepartmentID FROM Room WHERE DepartmentID = d.DepartmentID LIMIT 1)
+LEFT JOIN Appointment a ON dept_doc.DoctorID = a.DoctorID
+LEFT JOIN Room r ON d.DepartmentID = r.DepartmentID
+GROUP BY d.DepartmentID, d.DepartmentName, d.HeadDoctor, doc.Name;
+
+----------------------------------------------------------------
 -- END OF FILE
 ----------------------------------------------------------------
