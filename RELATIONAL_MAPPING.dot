@@ -1,0 +1,173 @@
+
+digraph RelationalMapping {
+    rankdir=LR;
+    node [shape=plaintext, fontname="Arial", fontsize=9];
+    edge [fontname="Arial", fontsize=8, style=bold];
+    
+    // Patient Table
+    Patient [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFE6E6">
+            <TR><TD COLSPAN="2" BGCOLOR="#FF6666"><B>Patient</B></TD></TR>
+            <TR><TD>PatientID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>Name</TD><TD>VARCHAR(100)</TD></TR>
+            <TR><TD>Age</TD><TD>INT</TD></TR>
+            <TR><TD>Gender</TD><TD>VARCHAR(10)</TD></TR>
+            <TR><TD>Address</TD><TD>VARCHAR(255)</TD></TR>
+            <TR><TD>Phone</TD><TD>VARCHAR(15)</TD></TR>
+        </TABLE>>];
+    
+    // Doctor Table
+    Doctor [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFE6E6">
+            <TR><TD COLSPAN="2" BGCOLOR="#FF6666"><B>Doctor</B></TD></TR>
+            <TR><TD>DoctorID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>Name</TD><TD>VARCHAR(100)</TD></TR>
+            <TR><TD>Specialization</TD><TD>VARCHAR(100)</TD></TR>
+            <TR><TD>Phone</TD><TD>VARCHAR(15)</TD></TR>
+        </TABLE>>];
+    
+    // Appointment Table
+    Appointment [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E6F3FF">
+            <TR><TD COLSPAN="2" BGCOLOR="#6699FF"><B>Appointment</B></TD></TR>
+            <TR><TD>AppointmentID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>PatientID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>DoctorID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>AppointmentDate</TD><TD>DATE</TD></TR>
+        </TABLE>>];
+    
+    // Medical Record Table
+    MedicalRecord [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E6F3FF">
+            <TR><TD COLSPAN="2" BGCOLOR="#6699FF"><B>MedicalRecord</B></TD></TR>
+            <TR><TD>RecordID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>PatientID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>DoctorID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>Diagnosis</TD><TD>VARCHAR(255)</TD></TR>
+            <TR><TD>Treatment</TD><TD>VARCHAR(255)</TD></TR>
+        </TABLE>>];
+    
+    // Billing Table
+    Billing [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E6F3FF">
+            <TR><TD COLSPAN="2" BGCOLOR="#6699FF"><B>Billing</B></TD></TR>
+            <TR><TD>BillID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>PatientID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>Amount</TD><TD>DECIMAL(10,2)</TD></TR>
+            <TR><TD>BillingDate</TD><TD>DATE</TD></TR>
+        </TABLE>>];
+    
+    // Payment Table
+    Payment [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E6F3FF">
+            <TR><TD COLSPAN="2" BGCOLOR="#6699FF"><B>Payment</B></TD></TR>
+            <TR><TD>PaymentID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>PatientID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>AmountPaid</TD><TD>DECIMAL(10,2)</TD></TR>
+            <TR><TD>PaymentDate</TD><TD>DATE</TD></TR>
+        </TABLE>>];
+    
+    // Users Table
+    Users [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFE6E6">
+            <TR><TD COLSPAN="2" BGCOLOR="#FF6666"><B>Users</B></TD></TR>
+            <TR><TD>user_id</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>username</TD><TD>VARCHAR(100)(UNIQUE)</TD></TR>
+            <TR><TD>password_hash</TD><TD>VARCHAR(255)</TD></TR>
+            <TR><TD>role</TD><TD>ENUM</TD></TR>
+        </TABLE>>];
+    
+    // PaymentStatus Table
+    PaymentStatus [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E6F3FF">
+            <TR><TD COLSPAN="2" BGCOLOR="#6699FF"><B>PaymentStatus</B></TD></TR>
+            <TR><TD>PatientID</TD><TD>INT (PK, FK)</TD></TR>
+            <TR><TD>LatestBillAmount</TD><TD>DECIMAL(10,2)</TD></TR>
+            <TR><TD>PaymentComplete</TD><TD>BOOLEAN</TD></TR>
+        </TABLE>>];
+    
+    // Prescription Table
+    Prescription [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E6F3FF">
+            <TR><TD COLSPAN="2" BGCOLOR="#6699FF"><B>Prescription</B></TD></TR>
+            <TR><TD>PrescriptionID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>PatientID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>DoctorID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>MedicineName</TD><TD>VARCHAR(100)</TD></TR>
+            <TR><TD>Dosage</TD><TD>VARCHAR(50)</TD></TR>
+            <TR><TD>Frequency</TD><TD>VARCHAR(50)</TD></TR>
+            <TR><TD>StartDate</TD><TD>DATE</TD></TR>
+            <TR><TD>EndDate</TD><TD>DATE</TD></TR>
+            <TR><TD>Notes</TD><TD>VARCHAR(255)</TD></TR>
+        </TABLE>>];
+    
+    // Department Table
+    Department [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFE6E6">
+            <TR><TD COLSPAN="2" BGCOLOR="#FF6666"><B>Department</B></TD></TR>
+            <TR><TD>DepartmentID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>DepartmentName</TD><TD>VARCHAR(100)(UNIQUE)</TD></TR>
+            <TR><TD>HeadDoctor</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>Phone</TD><TD>VARCHAR(15)</TD></TR>
+        </TABLE>>];
+    
+    // Room Table
+    Room [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E6F3FF">
+            <TR><TD COLSPAN="2" BGCOLOR="#6699FF"><B>Room</B></TD></TR>
+            <TR><TD>RoomID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>RoomNumber</TD><TD>VARCHAR(20)(UNIQUE)</TD></TR>
+            <TR><TD>RoomType</TD><TD>ENUM</TD></TR>
+            <TR><TD>Capacity</TD><TD>INT</TD></TR>
+            <TR><TD>IsOccupied</TD><TD>BOOLEAN</TD></TR>
+            <TR><TD>CurrentPatientID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>DepartmentID</TD><TD>INT (FK)</TD></TR>
+        </TABLE>>];
+    
+    // LabTest Table
+    LabTest [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E6F3FF">
+            <TR><TD COLSPAN="2" BGCOLOR="#6699FF"><B>LabTest</B></TD></TR>
+            <TR><TD>TestID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>PatientID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>DoctorID</TD><TD>INT (FK)</TD></TR>
+            <TR><TD>TestName</TD><TD>VARCHAR(100)</TD></TR>
+            <TR><TD>TestDate</TD><TD>DATE</TD></TR>
+            <TR><TD>Result</TD><TD>VARCHAR(255)</TD></TR>
+            <TR><TD>Status</TD><TD>ENUM</TD></TR>
+            <TR><TD>Notes</TD><TD>VARCHAR(255)</TD></TR>
+        </TABLE>>];
+    
+    // TriggerActionLog Table
+    TriggerLog [label=<
+        <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E6F6E6">
+            <TR><TD COLSPAN="2" BGCOLOR="#66CC66"><B>TriggerActionLog</B></TD></TR>
+            <TR><TD>LogID</TD><TD>INT (PK, AI)</TD></TR>
+            <TR><TD>TriggerName</TD><TD>VARCHAR(100)</TD></TR>
+            <TR><TD>ActionType</TD><TD>VARCHAR(50)</TD></TR>
+            <TR><TD>TableName</TD><TD>VARCHAR(100)</TD></TR>
+            <TR><TD>RecordID</TD><TD>INT</TD></TR>
+            <TR><TD>OldValue</TD><TD>VARCHAR(255)</TD></TR>
+            <TR><TD>NewValue</TD><TD>VARCHAR(255)</TD></TR>
+            <TR><TD>ActionTimestamp</TD><TD>TIMESTAMP</TD></TR>
+            <TR><TD>PatientID</TD><TD>INT</TD></TR>
+        </TABLE>>];
+    
+    // Relationships
+    Patient -> Appointment [label="1:M"];
+    Patient -> MedicalRecord [label="1:M"];
+    Patient -> Billing [label="1:M"];
+    Patient -> Payment [label="1:M"];
+    Patient -> PaymentStatus [label="1:1"];
+    Patient -> Prescription [label="1:M"];
+    Patient -> LabTest [label="1:M"];
+    Patient -> Room [label="1:0..1"];
+    
+    Doctor -> Appointment [label="1:M"];
+    Doctor -> MedicalRecord [label="1:M"];
+    Doctor -> Prescription [label="1:M"];
+    Doctor -> LabTest [label="1:M"];
+    Doctor -> Department [label="1:0..1"];
+    
+    Department -> Room [label="1:M"];
+}

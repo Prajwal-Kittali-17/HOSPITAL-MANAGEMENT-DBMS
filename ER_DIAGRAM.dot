@@ -1,0 +1,165 @@
+
+digraph ERDiagram {
+    rankdir=LR;
+    node [shape=box, style=filled, fillcolor=lightblue, fontname="Arial"];
+    edge [fontname="Arial", fontsize=10];
+    
+    // Entity Definitions
+    Patient [label="Patient
+
+PatientID (PK)
+Name
+Age
+Gender
+Address
+Phone", fillcolor="#FFE6E6"];
+    Doctor [label="Doctor
+
+DoctorID (PK)
+Name
+Specialization
+Phone", fillcolor="#FFE6E6"];
+    Appointment [label="Appointment
+
+AppointmentID (PK)
+PatientID (FK)
+DoctorID (FK)
+AppointmentDate", fillcolor="#E6F3FF"];
+    MedicalRecord [label="MedicalRecord
+
+RecordID (PK)
+PatientID (FK)
+DoctorID (FK)
+Diagnosis
+Treatment", fillcolor="#E6F3FF"];
+    Billing [label="Billing
+
+BillID (PK)
+PatientID (FK)
+Amount
+BillingDate", fillcolor="#E6F3FF"];
+    Payment [label="Payment
+
+PaymentID (PK)
+PatientID (FK)
+AmountPaid
+PaymentDate", fillcolor="#E6F3FF"];
+    PaymentStatus [label="PaymentStatus
+
+PatientID (PK)
+LatestBillAmount
+PaymentComplete", fillcolor="#E6F3FF"];
+    Users [label="Users
+
+user_id (PK)
+username (UNIQUE)
+password_hash
+role", fillcolor="#FFE6E6"];
+    Prescription [label="Prescription
+
+PrescriptionID (PK)
+PatientID (FK)
+DoctorID (FK)
+MedicineName
+Dosage
+Frequency
+StartDate
+EndDate
+Notes", fillcolor="#E6F3FF"];
+    Department [label="Department
+
+DepartmentID (PK)
+DepartmentName (UNIQUE)
+HeadDoctor (FK)
+Phone", fillcolor="#FFE6E6"];
+    Room [label="Room
+
+RoomID (PK)
+RoomNumber (UNIQUE)
+RoomType (ENUM)
+Capacity
+IsOccupied
+CurrentPatientID (FK)
+DepartmentID (FK)", fillcolor="#E6F3FF"];
+    LabTest [label="LabTest
+
+TestID (PK)
+PatientID (FK)
+DoctorID (FK)
+TestName
+TestDate
+Result
+Status (ENUM)
+Notes", fillcolor="#E6F3FF"];
+    TriggerLog [label="TriggerActionLog
+
+LogID (PK)
+TriggerName
+ActionType
+TableName
+RecordID
+OldValue
+NewValue
+ActionTimestamp
+PatientID", fillcolor="#E6F6E6"];
+    
+    // Relationships - Patient as central entity
+    Patient -> Appointment [label="1:M
+Schedules"];
+    Patient -> MedicalRecord [label="1:M
+Has"];
+    Patient -> Billing [label="1:M
+Receives"];
+    Patient -> Payment [label="1:M
+Makes"];
+    Patient -> PaymentStatus [label="1:1
+Tracked By"];
+    Patient -> Prescription [label="1:M
+Receives"];
+    Patient -> LabTest [label="1:M
+Undergoes"];
+    Patient -> Room [label="1:0..1
+Occupies"];
+    
+    // Relationships - Doctor
+    Doctor -> Appointment [label="1:M
+Has"];
+    Doctor -> MedicalRecord [label="1:M
+Treats"];
+    Doctor -> Prescription [label="1:M
+Prescribes"];
+    Doctor -> LabTest [label="1:M
+Orders"];
+    Doctor -> Department [label="1:0..1
+Heads"];
+    
+    // Relationships - Department & Room
+    Department -> Room [label="1:M
+Contains"];
+    
+    // Relationships - Logging
+    Appointment -> TriggerLog [label="0:M
+Logged"];
+    Payment -> TriggerLog [label="0:M
+Logged"];
+    Prescription -> TriggerLog [label="0:M
+Logged"];
+    Room -> TriggerLog [label="0:M
+Logged"];
+    LabTest -> TriggerLog [label="0:M
+Logged"];
+    
+    // Legend
+    Legend [label="Legend
+
+Red: Core Entities
+Blue: Junction/Transaction Tables
+Green: Audit Table
+
+PK: Primary Key
+FK: Foreign Key
+1:M: One-to-Many
+1:1: One-to-One
+0:M: Zero-to-Many", 
+            shape=box, style=filled, fillcolor="#FFFACD", fontsize=9, labeljust="l"];
+}
