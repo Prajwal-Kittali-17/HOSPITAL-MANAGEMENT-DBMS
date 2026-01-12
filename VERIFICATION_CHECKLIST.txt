@@ -101,7 +101,6 @@ TESTING ✅
 DOCUMENTATION ✅
 ================
 [✅] README.md (Original - preserved)
-[✅] README_FINAL.md (Complete guide)
 [✅] PROJECT_SUMMARY.md (Detailed summary)
 [✅] Code comments and docstrings
 
@@ -122,8 +121,9 @@ FILE STRUCTURE ✅
    - Hospital_Management.sql
    - requirements.txt
    - README.md
-   - README_FINAL.md
    - PROJECT_SUMMARY.md
+    - ER_DIAGRAM.dot
+    - RELATIONAL_MAPPING.dot
    
 ✅ utils/ directory:
    - db_helpers.py
@@ -136,6 +136,8 @@ FILE STRUCTURE ✅
 ✅ Support scripts:
    - verify_db.py
    - import_sql.py
+    - generate_er_diagram.py
+    - generate_relational_mapping.py
 
 RUNNING APPLICATION ✅
 ======================

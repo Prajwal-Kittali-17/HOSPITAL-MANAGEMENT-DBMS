@@ -238,17 +238,35 @@ Default login credentials (created during DB init):
 
 ```
 HOSPITAL-MANAGEMENT-DBMS/
-├── db_config.py                # MySQL connection configuration
-├── main.py                     # Streamlit app (all UI pages)
-├── Hospital_Management.sql     # SQL schema and initial data
-├── requirements.txt            # Python dependencies
-├── README.md                   # This file
+├── main.py                       # Streamlit app (all UI pages)
+├── db_config.py                  # MySQL connection configuration
+├── Hospital_Management.sql       # SQL schema and seed data
+├── requirements.txt              # Python dependencies
+├── README.md                     # Project overview and usage
+├── ER_DIAGRAM.dot                # ER diagram (Graphviz source)
+├── RELATIONAL_MAPPING.dot        # Relational mapping (Graphviz source)
+├── generate_er_diagram.py        # Generate ER diagram assets from DOT
+├── generate_relational_mapping.py # Generate relational mapping assets from DOT
+├── clean_init.py                 # Initialize database objects
+├── seed_data.py                  # Insert sample data
+├── import_sql.py                 # Import SQL helper
+├── verify_db.py                  # Verification helper
+├── HOSPITAL_MANAGEMENT_DBMS_REPORT.txt # Report notes
+├── PROJECT_SUMMARY.md            # High-level project summary
+├── QUICK_REFERENCE.txt           # Quick user guide
 ├── scripts/
-│   └── init_db.py             # Script to initialize DB objects from SQL
+│   └── init_db.py                # Script to initialize DB objects from SQL
 ├── utils/
-│   ├── db_helpers.py          # DB connection utilities
-│   └── __pycache__/
-└── __pycache__/
+│   └── db_helpers.py             # DB connection utilities
+├── .venv/                        # (optional) Local virtual environment
+└── .git/                         # Git metadata
+```
+
+Generated images and ASCII exports for diagrams are intentionally not tracked. Regenerate them when needed via:
+
+```powershell
+python generate_er_diagram.py
+python generate_relational_mapping.py
 ```
 
 ## Usage Examples
