@@ -131,17 +131,14 @@ A comprehensive hospital management system built with **Streamlit**, **Python**,
 ### Triggers
 
 1. **`TR_UPDATE_PAYMENT_STATUS`** - AFTER INSERT ON Payment
-
    - Updates PaymentStatus table when payment is made
    - Sets PaymentComplete = TRUE if paid amount >= billed amount
 
 2. **`TR_LOG_PRESCRIPTION_INSERT`** - AFTER INSERT ON Prescription
-
    - Logs prescription creation to TriggerActionLog
    - Records medicine name, dosage, and patient info
 
 3. **`TR_LOG_ROOM_OCCUPANCY`** - AFTER UPDATE ON Room
-
    - Logs room occupancy status changes to TriggerActionLog
    - Tracks when rooms become occupied or vacant
 
@@ -252,8 +249,6 @@ HOSPITAL-MANAGEMENT-DBMS/
 ├── import_sql.py                 # Import SQL helper
 ├── verify_db.py                  # Verification helper
 ├── HOSPITAL_MANAGEMENT_DBMS_REPORT.txt # Report notes
-├── PROJECT_SUMMARY.md            # High-level project summary
-├── QUICK_REFERENCE.txt           # Quick user guide
 ├── scripts/
 │   └── init_db.py                # Script to initialize DB objects from SQL
 ├── utils/
